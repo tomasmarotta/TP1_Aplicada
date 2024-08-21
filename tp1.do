@@ -1,10 +1,22 @@
 *TP1 ECONOMÍA APLICADA. De Boeck, Garay Adriel, Kastika y Marotta 
-
 clear all 
 set more off
 
-*save path in global or local 
-global main "/Users/sofia/Desktop/Maestría/Optativas/Tercer trimestre/Economía Aplicada/TPs/TP 1"
+*save path in global 
+* TM(21/08/2024): Pongan el directorio con otro "else if" para que stata reconozca automáticamente el directorio que tiene que usar
+if "`c(username)'" == "sofia" {
+    global main "/Users/sofia/Desktop/Maestría/Optativas/Tercer trimestre/Economía Aplicada/TPs/TP 1"
+} 
+else if "`c(username)'" == "tomasmarotta" {
+    global main "/Users/tomasmarotta/Documents/GitHub/TP1_Aplicada"
+} 
+else {
+    display "Error: Usuario no reconocido. No se ha configurado el directorio principal."
+    exit
+}
+
+// Cambiar al directorio principal
+cd "$main"
 global input "$main/input"
 global output "$main/output"
 
@@ -135,12 +147,33 @@ gen edad = monage/12
 recast int edad, force // redondeamos los años
 label var edad "Edad"
 
-foreach var of varlist sex1 satlif waistc totexpr1 edad  {
-    summarize `var'
-}
+*Creo la tabla con las estadísitcas descriptivas y la exporto en formato LaTeX
+* estpost summarize sex1 satlif waistc totexpr1 edad
+* esttab using "$output/tabla_est_descriptivas.tex", ///
+*      title("Estadísticas Descriptivas") ///
+*     label ///
+*     replace ///
+*    tex
 
-*FALTA SACAR TABLA A LATEX
 
+* Guardar las estadísticas descriptivas
+estpost summarize sex1 satlif waistc totexpr1 edad
+
+* Exportar la tabla en formato LaTeX con las estadísticas completas
+esttab using "output/tabla_est_descriptivas.tex", ///
+    cells("count(fmt(%9.0fc)) mean(fmt(%9.2f)) sd(fmt(%9.2f)) min(fmt(%9.2f)) max(fmt(%9.2f))") ///
+    label ///
+    collabels("Obs." "Mean" "SD" "Min" "Max") ///
+    title("Estadísticas Descriptivas") ///
+    replace ///
+    tex
+	
+	
+
+* TM(21/08/2024): borro el loop, no es necesario
+*foreach var of varlist sex1 satlif waistc totexpr1 edad  {
+*    summarize `var'
+*}
 
 
 

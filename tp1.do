@@ -87,7 +87,6 @@ destring tincm_r, replace
 
 
 *2) Vemos cuántos missing tienen las variables 
-ssc install mdesc
 mdesc // vemos los missing para todas las variables 
 
 *Missing values
@@ -160,20 +159,39 @@ label var edad "Edad"
 estpost summarize sex1 satlif waistc totexpr1 edad
 
 * Exportar la tabla en formato LaTeX con las estadísticas completas
-esttab using "output/tabla_est_descriptivas.tex", ///
+esttab using "$output/tabla_est_descriptivas.tex", ///
     cells("count(fmt(%9.0fc)) mean(fmt(%9.2f)) sd(fmt(%9.2f)) min(fmt(%9.2f)) max(fmt(%9.2f))") ///
     label ///
     collabels("Obs." "Mean" "SD" "Min" "Max") ///
     title("Estadísticas Descriptivas") ///
     replace ///
-    tex
+    tex ///
+	nonumber
 	
 	
-
 * TM(21/08/2024): borro el loop, no es necesario
 *foreach var of varlist sex1 satlif waistc totexpr1 edad  {
 *    summarize `var'
 *}
 
 
+* 6) 
+	* a. 
+		* Creo un gráfico comparando la distribución del tamaño de cadera para hombres y mujeres.
+		twoway (kdensity hipsiz if sex1 == 2, lcolor(blue) lpattern(solid) ///
+				legend(label(1 "Hombres"))) ///
+			   (kdensity hipsiz if sex1 == 1, lcolor(red) lpattern(dash) ///
+				legend(label(2 "Mujeres"))), ///
+				title("") ///
+				ytitle("Densidad") xtitle("Tamaño de la cadera (cm)") ///
+				legend(pos(1) ring(0) box cols(1)) 
+		
+		* Exporto el gráfico
+		graph export "output/hipsiz_kernel_density.png", width(1000) replace
 
+		
+	* b. //TM(21/08/2024): No estoy seguro que esté bien
+		* Realizo un test T de medias por sexo
+		ttest hipsiz, by(sex1)
+		
+		* Exporto la tabla

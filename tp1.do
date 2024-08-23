@@ -127,6 +127,9 @@ foreach var of varlist inwgt monage htself height waistc tincm_r {
 *solo para las variables numericas (no las categoricas), sacamos los outliers, definidos como aquellos valores por encima del percentil 99
 *Variables: inwgt (individual sample weight), monage (age in months), htself (altura reportada), height (altura), waistc (circumferencia de cintura), tincm_r (ingreso real) 
 
+*Elimino valores negativos de totexpr1*
+replace totexpr1=. if totexpr1<0
+
 *4) Ordenamos dataset 
 order id site sex1
 sort totexpr1 //ordeno de menor a mayor por fila
@@ -147,7 +150,7 @@ recast int edad, force // redondeamos los años
 label var edad "Edad"
 
 *Creo la tabla con las estadísitcas descriptivas y la exporto en formato LaTeX
-* estpost summarize sex1 satlif waistc totexpr1 edad
+* estpost summarize sex1 satlif waistc totexpr1 edad hipsiz1
 * esttab using "$output/tabla_est_descriptivas.tex", ///
 *      title("Estadísticas Descriptivas") ///
 *     label ///
